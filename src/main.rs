@@ -20,7 +20,9 @@ enum Direction {
 
 #[derive(Debug, PartialEq)]
 enum MovementError {
-    NoBeingInSquare
+    NoBeingInSquare,
+    OutOfGridBounds,
+    AnotherBeingInSquare
 }
 
 #[derive(PartialEq, Debug)]
@@ -42,11 +44,31 @@ struct Grid {
 
 impl Grid {
     fn move_being_in_coord(&self, coord: (usize, usize), dir: Direction) -> Result<(usize, usize), MovementError> {
+        // let squares = self.squares.clone();
         let square = self.squares.get(coord.0 * self.size.0 + coord.1).expect("Index of out map bounds");
-        match square.being {
-            Some(_) => Ok((0, 0)),
-            None => Err(MovementError::NoBeingInSquare)
+
+        if square.being == None {
+            return Err(MovementError::NoBeingInSquare);
         }
+
+        let destination_coord = match dir {
+            Direction::West => (coord.0, coord.1 - 1),
+            Direction::East => (coord.0, coord.1 + 1),
+            Direction::South => (coord.0 + 1, coord.1),
+            Direction::North => (coord.0 - 1, coord.1)
+        };
+
+        if destination_coord.0 >= self.size.0 || destination_coord.1 >= self.size.1 {
+            return Err(MovementError::OutOfGridBounds);
+        }
+
+        let destination_square = self.squares.get(destination_coord.0 * destination_coord.1).unwrap();
+        if destination_square.being != None {
+            return Err(MovementError::AnotherBeingInSquare);
+        }
+
+        return Ok((destination_coord.0, destination_coord.1));
+
     }
 
     fn generate_empty(size_x: usize, size_y: usize) -> Grid {
@@ -86,6 +108,23 @@ mod tests {
     #[test]
     fn test_move_without_being_in_square() {
         let grid = super::Grid::generate_empty(3, 3);
-        assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::West), Err(super::MovementError::NoBeingInSquare));
+        assert_eq!(grid.move_being_in_coord((0, 1), super::Direction::West), Err(super::MovementError::NoBeingInSquare));
     }
+
+    #[test]
+    fn test_move_in_busy_square() {
+        let mut grid = super::Grid::generate_empty(3, 3);
+        let human = super::Being::Human;
+        let orc = super::Being::Orc;
+
+        grid.squares[0].being = Some(human);
+        grid.squares[1].being = Some(orc);
+        assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::East), Err(super::MovementError::AnotherBeingInSquare));
+    }
+
+    // #[test]
+    // fn test_move_out_of_grid() {
+    //     let grid = super::Grid::generate_empty(3, 3);
+    //     assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::West), Err(super::MovementError::OutOfGridBounds));
+    // }
 }
