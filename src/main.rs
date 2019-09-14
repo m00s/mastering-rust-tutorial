@@ -118,6 +118,15 @@ mod tests {
     }
 
     #[test]
+    fn test_move_out_of_grid() {
+        let mut grid = super::Grid::generate_empty(3, 3);
+        let human = super::Being::Human;
+
+        grid.squares[8].being = Some(human);
+        assert_eq!(grid.move_being_in_coord((2, 2), super::Direction::East), Err(super::MovementError::OutOfGridBounds));
+    }
+
+    #[test]
     fn test_move_in_busy_square() {
         let mut grid = super::Grid::generate_empty(3, 3);
         let human = super::Being::Human;
@@ -137,10 +146,4 @@ mod tests {
         grid.squares[1].ground = super::TerrainGround::Stone;
         assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::East), Err(super::MovementError::TerrainIsStone));
     }
-
-    // #[test]
-    // fn test_move_out_of_grid() {
-    //     let grid = super::Grid::generate_empty(3, 3);
-    //     assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::West), Err(super::MovementError::OutOfGridBounds));
-    // }
 }
