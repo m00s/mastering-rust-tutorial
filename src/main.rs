@@ -22,7 +22,8 @@ enum Direction {
 enum MovementError {
     NoBeingInSquare,
     OutOfGridBounds,
-    AnotherBeingInSquare
+    AnotherBeingInSquare,
+    TerrainIsStone
 }
 
 #[derive(PartialEq, Debug)]
@@ -62,9 +63,14 @@ impl Grid {
             return Err(MovementError::OutOfGridBounds);
         }
 
-        let destination_square = self.squares.get(destination_coord.0 * destination_coord.1).unwrap();
+        let destination_square = self.squares.get(destination_coord.0  * self.size.0 + destination_coord.1).unwrap();
+
         if destination_square.being != None {
             return Err(MovementError::AnotherBeingInSquare);
+        }
+
+        if destination_square.ground == TerrainGround::Stone {
+            return Err(MovementError::TerrainIsStone);
         }
 
         return Ok((destination_coord.0, destination_coord.1));
@@ -120,6 +126,16 @@ mod tests {
         grid.squares[0].being = Some(human);
         grid.squares[1].being = Some(orc);
         assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::East), Err(super::MovementError::AnotherBeingInSquare));
+    }
+
+    #[test]
+    fn test_move_in_terrain_stone() {
+        let mut grid = super::Grid::generate_empty(2, 2);
+        let human = super::Being::Human;
+
+        grid.squares[0].being = Some(human);
+        grid.squares[1].ground = super::TerrainGround::Stone;
+        assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::East), Err(super::MovementError::TerrainIsStone));
     }
 
     // #[test]
