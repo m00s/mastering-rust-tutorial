@@ -22,3 +22,10 @@ The terrain ground can be one of *soil* or *stone*. This unsurprisingly refers t
 The terrain block can be *soil*, *stone*, or *tree*. This refers to a non-passable block that can be left as a wall, or be mined or felled away.
 
 Beings are living creatures, and each square may have one of them.
+
+We'll want to make it possible to move *Being* in any direction of *Grid* with the following cases being errors:
+
+- There is no *Being* in *Square*
+- *Being* tries to fall off from the edge of *Grid*
+- *Being* tries to move into *Square* where there is already *Being*
+- *Being* tries to move to *Terrain* which is *Stone*
