@@ -69,7 +69,7 @@ impl Grid {
             return Err(MovementError::AnotherBeingInSquare);
         }
 
-        if destination_square.ground == TerrainGround::Stone {
+        if destination_square.block == Some(TerrainBlock::Stone) {
             return Err(MovementError::TerrainIsStone);
         }
 
@@ -143,7 +143,16 @@ mod tests {
         let human = super::Being::Human;
 
         grid.squares[0].being = Some(human);
-        grid.squares[1].ground = super::TerrainGround::Stone;
+        grid.squares[1].block = Some(super::TerrainBlock::Stone);
         assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::East), Err(super::MovementError::TerrainIsStone));
+    }
+
+    #[test]
+    fn test_move_success() {
+        let mut grid = super::Grid::generate_empty(2, 2);
+        let human = super::Being::Human;
+
+        grid.squares[0].being = Some(human);
+        assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::East), Ok((0, 1)));
     }
 }
