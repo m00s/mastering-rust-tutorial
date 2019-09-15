@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/m00s/mastering-rust-tutorial.svg?branch=master)](https://travis-ci.org/m00s/mastering-rust-tutorial)
+[![Build Status](https://travis-ci.com/m00s/mastering-rust-tutorial.svg?branch=master)](https://travis-ci.com/m00s/mastering-rust-tutorial)
 
 # Mastering Rust tutorial
 
