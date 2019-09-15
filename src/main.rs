@@ -69,7 +69,6 @@ impl Error for MovementError {
 
 impl Grid {
     fn move_being_in_coord(&self, coord: (usize, usize), dir: Direction) -> Result<(usize, usize), MovementError> {
-        // let squares = self.squares.clone();
         let square = self.squares.get(coord.0 * self.size.0 + coord.1).expect("Index of out map bounds");
 
         if square.being == None {
