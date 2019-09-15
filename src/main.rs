@@ -1,18 +1,25 @@
 use std::error::Error;
 use std::fmt;
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 enum TerrainGround {
     Soil,
     Stone
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 enum TerrainBlock {
     Tree,
     Soil,
     Stone
 }
+
+#[derive(Clone, PartialEq, Debug)]
+enum Being {
+    Orc,
+    Human
+}
+
 
 enum Direction {
     West,
@@ -29,12 +36,7 @@ enum MovementError {
     TerrainIsStone
 }
 
-#[derive(PartialEq, Debug)]
-enum Being {
-    Orc,
-    Human
-}
-
+#[derive(Clone)]
 struct Square {
     ground: TerrainGround,
     block: Option<TerrainBlock>,
@@ -68,8 +70,9 @@ impl Error for MovementError {
 }
 
 impl Grid {
-    fn move_being_in_coord(&self, coord: (usize, usize), dir: Direction) -> Result<(usize, usize), MovementError> {
-        let square = self.squares.get(coord.0 * self.size.0 + coord.1).expect("Index of out map bounds");
+    fn move_being_in_coord(&mut self, coord: (usize, usize), dir: Direction) -> Result<(usize, usize), MovementError> {
+        let squares = self.squares.clone();
+        let square = squares.get(coord.0 * self.size.0 + coord.1).expect("Index of out map bounds");
 
         if square.being == None {
             return Err(MovementError::NoBeingInSquare);
@@ -86,7 +89,7 @@ impl Grid {
             return Err(MovementError::OutOfGridBounds);
         }
 
-        let destination_square = self.squares.get(destination_coord.0  * self.size.0 + destination_coord.1).unwrap();
+        let destination_square = squares.get(destination_coord.0  * self.size.0 + destination_coord.1).unwrap();
 
         if destination_square.being != None {
             return Err(MovementError::AnotherBeingInSquare);
@@ -96,7 +99,19 @@ impl Grid {
             return Err(MovementError::TerrainIsStone);
         }
 
-        return Ok((destination_coord.0, destination_coord.1));
+        self.squares[destination_coord.0  * self.size.0 + destination_coord.1] = Square {
+            being: square.being.clone(),
+            block: destination_square.block.clone(),
+            ground: destination_square.ground.clone()
+        };
+
+        self.squares[coord.0 * self.size.0 + coord.1] = Square {
+            being: None,
+            block: square.block.clone(),
+            ground: square.ground.clone()
+        };
+
+        return Ok(destination_coord);
 
     }
 
@@ -136,7 +151,7 @@ mod tests {
 
     #[test]
     fn test_move_without_being_in_square() {
-        let grid = super::Grid::generate_empty(3, 3);
+        let mut grid = super::Grid::generate_empty(3, 3);
         assert_eq!(grid.move_being_in_coord((0, 1), super::Direction::West), Err(super::MovementError::NoBeingInSquare));
     }
 
@@ -177,5 +192,7 @@ mod tests {
 
         grid.squares[0].being = Some(human);
         assert_eq!(grid.move_being_in_coord((0, 0), super::Direction::East), Ok((0, 1)));
+        assert_eq!(grid.squares[0].being, None);
+        assert!(grid.squares[1].being != None);
     }
 }
