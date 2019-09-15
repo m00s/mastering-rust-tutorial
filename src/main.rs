@@ -1,3 +1,6 @@
+use std::error::Error;
+use std::fmt;
+
 #[derive(PartialEq, Debug)]
 enum TerrainGround {
     Soil,
@@ -41,6 +44,27 @@ struct Square {
 struct Grid {
     size: (usize, usize),
     squares: Vec<Square>
+}
+
+impl fmt::Display for MovementError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Movement Error")
+    }
+}
+
+impl Error for MovementError {
+    fn description(&self) -> &str {
+        match self {
+            NoBeingInSquare => "No Being in Square",
+            AnotherBeingInSquare => "Another Being in Square",
+            OutOfGridBounds => "Fell of the Grid",
+            TerrainIsStone => "Terrain is Stone"
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        None
+    }
 }
 
 impl Grid {
