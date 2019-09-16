@@ -1,5 +1,8 @@
 [![Build Status](https://travis-ci.com/m00s/mastering-rust-tutorial.svg?branch=master)](https://travis-ci.com/m00s/mastering-rust-tutorial)
 
+[![Actions Status](https://github.com/m00s/mastering-rust-tutorial/workflows/Rust/badge.svg)](https://github.com/m00s/mastering-rust-tutorial/actions)
+
+
 # Mastering Rust tutorial
 
 This is a project to learn the Rust programming language
