@@ -130,6 +130,10 @@ impl Grid {
     }
 }
 
+fn main() {
+  println!("This is a sample project");
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
