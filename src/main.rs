@@ -1,5 +1,7 @@
 use std::error::Error;
 use std::fmt;
+use std::thread;
+use std::sync::{Mutex, Arc};
 
 #[derive(Clone, PartialEq, Debug)]
 enum TerrainGround {
@@ -19,7 +21,6 @@ enum Being {
     Orc,
     Human
 }
-
 
 enum Direction {
     West,
@@ -131,7 +132,42 @@ impl Grid {
 }
 
 fn main() {
-  println!("This is a sample project");
+    println!("Creating the grid..");
+    let mut initial_grid = Grid::generate_empty(3, 3);
+
+    println!("..and the humans");
+    let Homer = Being::Human;
+    let Lisa = Being::Human;
+
+    initial_grid.squares[0].being = Some(Homer);
+    initial_grid.squares[3].being = Some(Lisa);
+
+    let grid = Arc::new(Mutex::new(initial_grid));
+
+    let grid_homer = grid.clone();
+    let thread_homer = thread::spawn(move || {
+        println!("Moving Homer");
+        let mut internal_grid = grid_homer.lock().unwrap();
+        match internal_grid.move_being_in_coord((0, 0), Direction::East) {
+            Ok(position) => println!("Homer successfully moved to {}", position.0 + position.1),
+            Err(reason) => println!("Homer movement error {}", reason)
+        }
+    });
+
+    let grid_lisa = grid.clone();
+    let thread_lisa = thread::spawn(move || {
+        println!("Moving Lisa");
+        let mut internal_grid = grid_lisa.lock().unwrap();
+        match internal_grid.move_being_in_coord((1, 1), Direction::West) {
+            Ok(position) => println!("Lisa successfully moved to {}", position.0 + position.1),
+            Err(reason) => println!("Lisa movement error {}", reason)
+        }
+    });
+
+    thread_homer.join();
+    thread_lisa.join();
+
+    println!("Everyone is done");
 }
 
 #[cfg(test)]
