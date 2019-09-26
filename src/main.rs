@@ -136,36 +136,36 @@ fn main() {
     let mut initial_grid = Grid::generate_empty(3, 3);
 
     println!("..and the humans");
-    let Homer = Being::Human;
-    let Lisa = Being::Human;
+    let homer = Being::Human;
+    let lisa = Being::Human;
 
-    initial_grid.squares[0].being = Some(Homer);
-    initial_grid.squares[3].being = Some(Lisa);
+    initial_grid.squares[0].being = Some(homer);
+    initial_grid.squares[4].being = Some(lisa);
 
     let grid = Arc::new(Mutex::new(initial_grid));
 
     let grid_homer = grid.clone();
     let thread_homer = thread::spawn(move || {
-        println!("Moving Homer");
+        println!("Moving homer");
         let mut internal_grid = grid_homer.lock().unwrap();
         match internal_grid.move_being_in_coord((0, 0), Direction::East) {
-            Ok(position) => println!("Homer successfully moved to {}", position.0 + position.1),
-            Err(reason) => println!("Homer movement error {}", reason)
+            Ok(position) => println!("homer successfully moved to {}", position.0 + position.1),
+            Err(reason) => println!("homer movement error {}", reason.description())
         }
     });
 
     let grid_lisa = grid.clone();
     let thread_lisa = thread::spawn(move || {
-        println!("Moving Lisa");
+        println!("Moving lisa");
         let mut internal_grid = grid_lisa.lock().unwrap();
         match internal_grid.move_being_in_coord((1, 1), Direction::West) {
-            Ok(position) => println!("Lisa successfully moved to {}", position.0 + position.1),
-            Err(reason) => println!("Lisa movement error {}", reason)
+            Ok(position) => println!("lisa successfully moved to {}", position.0 + position.1),
+            Err(reason) => println!("lisa movement error {}", reason.description())
         }
     });
 
-    thread_homer.join();
-    thread_lisa.join();
+    thread_homer.join().unwrap();
+    thread_lisa.join().unwrap();
 
     println!("Everyone is done");
 }
